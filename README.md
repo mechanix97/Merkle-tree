@@ -7,6 +7,14 @@ A Merkle tree or Hash tree is a tree data stucture that consist of leaves which 
 ![Merkle tree](https://upload.wikimedia.org/wikipedia/commons/9/95/Hash_Tree.svg)
 (image extracted from wikipedia)
 
+
+
+# 
+A Merkle Tree can be built out of an array.
+A Merkle Tree can generate a proof that it contains an element.
+A Merkle Tree can verify that a given hash is contained in it.
+A Merkle Tree can be dynamic, this means that elements can be added once it is built.
+
 ## Usage
 To use it run:
 ```shell
