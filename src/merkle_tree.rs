@@ -70,14 +70,13 @@ impl MerkleTree {
     // generate a proof from a given index
     pub fn generate_proof(&self, mut index: usize) -> Vec<H256> {
         if index >= self.len {
-            return vec!();
+            return vec![];
         }
 
-        let mut output = vec!();
+        let mut output = vec![];
         for i in 0..self.levels {
             if index % 2 == 0 {
                 output.push(self.hashes[i][index + 1]);
-
             } else {
                 output.push(self.hashes[i][index - 1]);
             }
@@ -172,15 +171,16 @@ mod tests {
         // a fourth element should be copied from the last element
         let mt = MerkleTree::from(vec!["keccak.com", "example.com", "mechardo3d.xyz"]);
 
-        let proof = vec!(
+        let proof = vec![
             keccak(""),
             keccak(
                 &[
                     keccak("keccak.com").as_bytes(),
-                    keccak("example.com").as_bytes()
-                ].concat()
-            )
-        );
+                    keccak("example.com").as_bytes(),
+                ]
+                .concat(),
+            ),
+        ];
 
         assert_eq!(mt.generate_proof(2), proof);
     }
