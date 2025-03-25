@@ -67,31 +67,30 @@ impl MerkleTree {
         self.root = self.hashes[self.levels][0];
     }
 
-    // check if an element is contained in a given position
-    pub fn proof_element(&self, element: H256, mut index: usize) -> bool {
-        if index > self.len {
-            return false;
+    // generate a proof from a given index
+    pub fn generate_proof(&self, mut index: usize) -> Vec<H256> {
+        if index >= self.len {
+            return vec!();
         }
 
-        let mut hash: H256 = element;
+        let mut output = vec!();
         for i in 0..self.levels {
             if index % 2 == 0 {
-                let concatenated = [hash.as_bytes(), self.hashes[i][index + 1].as_bytes()].concat();
-                hash = keccak(concatenated);
+                output.push(self.hashes[i][index + 1]);
+
             } else {
-                let concatenated = [self.hashes[i][index - 1].as_bytes(), hash.as_bytes()].concat();
-                hash = keccak(concatenated);
+                output.push(self.hashes[i][index - 1]);
             }
             index = index / 2;
         }
 
-        hash == self.root
+        output
     }
 
     // checks if a proof of a certain element is valid
     // receives the element, the proof (array of hashes) and the position of the element
     pub fn check_proof(&self, element: H256, proof: Vec<H256>, mut index: usize) -> bool {
-        if index > self.len {
+        if index >= self.len {
             return false;
         }
 
@@ -173,8 +172,17 @@ mod tests {
         // a fourth element should be copied from the last element
         let mt = MerkleTree::from(vec!["keccak.com", "example.com", "mechardo3d.xyz"]);
 
-        assert!(!mt.proof_element(keccak("mechardo3d.xyz"), 1));
-        assert!(mt.proof_element(keccak("mechardo3d.xyz"), 2));
+        let proof = vec!(
+            keccak(""),
+            keccak(
+                &[
+                    keccak("keccak.com").as_bytes(),
+                    keccak("example.com").as_bytes()
+                ].concat()
+            )
+        );
+
+        assert_eq!(mt.generate_proof(2), proof);
     }
 
     #[test]
@@ -182,7 +190,7 @@ mod tests {
         // a fourth element should be copied from the last element
         let mt = MerkleTree::from(vec!["keccak.com", "example.com", "mechardo3d.xyz"]);
 
-        assert!(!mt.proof_element(keccak("mechardo3d.xyz"), 3));
+        assert_eq!(mt.generate_proof(3), vec!());
     }
 
     #[test]
