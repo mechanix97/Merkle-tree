@@ -39,9 +39,16 @@ impl MerkleTree {
             return;
         }
 
-        if self.len > 2 ^ (self.levels - 1) {
+        if self.len > usize::pow(2 as usize,self.levels as u32){
             self.levels += 1;
         }
+        
+        let max_index = usize::pow(2 as usize,self.levels as u32);
+        for i in self.len..max_index {
+            let element = self.hashes[0][self.len - 1].clone();
+            self.hashes[0].insert(i, element);
+        }
+
         let aux = self.hashes[0].clone();
         self.hashes = vec![aux];
 
@@ -88,7 +95,7 @@ mod tests {
     }
 
     #[test]
-    fn two_leaf() {
+    fn two_leaves() {
         let mut mt = MerkleTree::new();
         let a = "keccak.com".as_bytes();
         let b = "example.com".as_bytes();
@@ -100,4 +107,27 @@ mod tests {
 
         assert_eq!(mt.get_root(), keccak(concatenated));
     }
+
+    #[test]
+    fn three_leaves() {
+        // a fourth element should be copied from the last element
+        let mut mt = MerkleTree::new();
+        let a = "keccak.com".as_bytes();
+        let b = "example.com".as_bytes();
+        let c = "mechardo3d.xyz".as_bytes();
+
+        mt.append(&a);
+        mt.append(&b);
+        mt.append(&c);
+
+
+        let a_b = &[keccak(a).as_bytes(), keccak(b).as_bytes()].concat();
+        let c_c = &[keccak(c).as_bytes(), keccak(c).as_bytes()].concat();
+
+        let concatenated = &[keccak(a_b).as_bytes(), keccak(c_c).as_bytes()].concat();
+
+
+        assert_eq!(mt.get_root(), keccak(concatenated));
+    }
+
 }
