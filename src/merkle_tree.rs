@@ -263,4 +263,14 @@ mod tests {
 
         assert_eq!(mt.get_root(), H256(root));
     }
+
+    #[test]
+    pub fn generate_proof_and_validate(){
+        let elems = vec!["google.com"; 254];
+
+        let mt = MerkleTree::from(elems);
+        let proof = mt.generate_proof(45);
+
+        assert!(mt.check_proof(keccak("google.com"), proof, 45));
+    }
 }
