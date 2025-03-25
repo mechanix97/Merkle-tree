@@ -46,7 +46,7 @@ impl MerkleTree {
 
         // complete the array to fill 2^n elements
         for i in self.len..usize::pow(2 as usize, self.levels as u32) {
-            self.hashes[0].insert(i, keccak("".as_bytes()));
+            self.hashes[0].insert(i, keccak(""));
         }
 
         // traverse the tree by levels
@@ -67,7 +67,7 @@ impl MerkleTree {
         self.root = self.hashes[self.levels][0];
     }
 
-    // 
+    // check if an element is contained in a given position
     pub fn proof_element(&self, element: H256, mut index: usize) -> bool {
         if index > self.len {
             return false;
@@ -90,15 +90,15 @@ impl MerkleTree {
 
     // checks if a proof of a certain element is valid
     // receives the element, the proof (array of hashes) and the position of the element
-    pub fn check_proof(&self, element: H256, proof: Vec<H256>, mut index: usize) -> bool{
+    pub fn check_proof(&self, element: H256, proof: Vec<H256>, mut index: usize) -> bool {
         if index > self.len {
             return false;
         }
-        
+
         let mut hash: H256 = element;
 
-        for elem in proof{
-            if index % 2 == 0{
+        for elem in proof {
+            if index % 2 == 0 {
                 let concatenated = [hash.as_bytes(), elem.as_bytes()].concat();
                 hash = keccak(concatenated);
             } else {
@@ -133,18 +133,18 @@ mod tests {
 
     #[test]
     fn one_leaf() {
-        let hashed = keccak("Keccak.com".as_bytes());
+        let hashed = keccak("Keccak.com");
 
-        let mt = MerkleTree::from(vec!("Keccak.com".as_bytes()));
+        let mt = MerkleTree::from(vec!["Keccak.com"]);
 
         assert_eq!(mt.get_root(), hashed);
     }
 
     #[test]
     fn two_leaves() {
-        let a = "keccak.com".as_bytes();
-        let b = "example.com".as_bytes();
-        let mt = MerkleTree::from(vec!(a, b));
+        let a = "keccak.com";
+        let b = "example.com";
+        let mt = MerkleTree::from(vec![a, b]);
 
         let concatenated = &[keccak(a).as_bytes(), keccak(b).as_bytes()].concat();
 
@@ -153,19 +153,15 @@ mod tests {
 
     #[test]
     fn three_leaves() {
-        let a = "keccak.com".as_bytes();
-        let b = "example.com".as_bytes();
-        let c = "mechardo3d.xyz".as_bytes();
+        let a = "keccak.com";
+        let b = "example.com";
+        let c = "mechardo3d.xyz";
 
         // a fourth element should be copied from the last element
-        let mt = MerkleTree::from(vec!(
-            "keccak.com".as_bytes(),
-            "example.com".as_bytes(),
-            "mechardo3d.xyz".as_bytes()
-        ));
+        let mt = MerkleTree::from(vec!["keccak.com", "example.com", "mechardo3d.xyz"]);
 
         let a_b = &[keccak(a).as_bytes(), keccak(b).as_bytes()].concat();
-        let c_c = &[keccak(c).as_bytes(), keccak("".as_bytes()).as_bytes()].concat();
+        let c_c = &[keccak(c).as_bytes(), keccak("").as_bytes()].concat();
 
         let concatenated = &[keccak(a_b).as_bytes(), keccak(c_c).as_bytes()].concat();
 
@@ -175,46 +171,40 @@ mod tests {
     #[test]
     fn proof_three_leaves() {
         // a fourth element should be copied from the last element
-        let mt = MerkleTree::from(vec!(
-            "keccak.com".as_bytes(),
-            "example.com".as_bytes(),
-            "mechardo3d.xyz".as_bytes()
-        ));
-        
-        assert!(!mt.proof_element(keccak("mechardo3d.xyz".as_bytes()), 1));
-        assert!(mt.proof_element(keccak("mechardo3d.xyz".as_bytes()), 2));
+        let mt = MerkleTree::from(vec!["keccak.com", "example.com", "mechardo3d.xyz"]);
+
+        assert!(!mt.proof_element(keccak("mechardo3d.xyz"), 1));
+        assert!(mt.proof_element(keccak("mechardo3d.xyz"), 2));
     }
 
     #[test]
     fn proof_index_too_big() {
         // a fourth element should be copied from the last element
-        let mt = MerkleTree::from(vec!(
-            "keccak.com".as_bytes(),
-            "example.com".as_bytes(),
-            "mechardo3d.xyz".as_bytes()
-        ));
-       
+        let mt = MerkleTree::from(vec!["keccak.com", "example.com", "mechardo3d.xyz"]);
+
         assert!(!mt.proof_element(keccak("mechardo3d.xyz"), 3));
     }
 
     #[test]
-    fn check_proof(){
-        let mt = MerkleTree::from(vec!(
-            "keccak.com".as_bytes(),
-            "example.com".as_bytes(),
-            "mechardo3d.xyz".as_bytes(),
-            "google.xyz".as_bytes()
-        ));
+    fn check_proof() {
+        let mt = MerkleTree::from(vec![
+            "keccak.com",
+            "example.com",
+            "mechardo3d.xyz",
+            "google.com",
+        ]);
 
-
-        let proof = vec!(
-            keccak("google.com".as_bytes()),
+        let proof = vec![
+            keccak("google.com"),
             keccak(
-                &[keccak("keccak.com".as_bytes()).as_bytes(), keccak("example.com".as_bytes()).as_bytes()].concat()
-            )
-        );
+                &[
+                    keccak("keccak.com").as_bytes(),
+                    keccak("example.com").as_bytes(),
+                ]
+                .concat(),
+            ),
+        ];
 
-        assert!( mt.check_proof(keccak("mechardo3d.xyz".as_bytes()), proof, 2) );
-
+        assert!(mt.check_proof(keccak("mechardo3d.xyz"), proof, 2));
     }
 }
