@@ -9,7 +9,7 @@ pub struct MerkleTree {
 }
 
 impl MerkleTree {
-    pub fn new() -> Self {
+    fn new() -> Self {
         MerkleTree {
             root: keccak_hash::H256([0u8; 32]),
             hashes: vec![vec![]],
