@@ -27,7 +27,13 @@ impl MerkleTree {
         T: Hash + std::convert::AsRef<[u8]>,
     {
         let hashed_element = keccak(element);
-        self.hashes[0].insert(self.len, hashed_element);
+        if self.len < self.hashes[0].len() {
+            self.hashes[0][self.len] = hashed_element;
+        } else {
+            self.hashes[0].insert(self.len, hashed_element);
+        }
+       
+        
         self.len += 1;
         self.recompute_tree_from_index(self.len - 1);
     }
@@ -43,7 +49,7 @@ impl MerkleTree {
         }
 
         // check if new levels are needed
-        while self.len > usize::pow(2 as usize, self.levels as u32) {
+        while self.len > 2 && self.len >= usize::pow(2 as usize, self.levels as u32) + 1 {
             self.levels += 1;
         }
 
@@ -54,7 +60,7 @@ impl MerkleTree {
 
         // traverse the tree by levels
         for level in 1..self.levels + 1 {
-            // clear the level to recompute the hashes
+            // insert new level if needed
             if self.hashes.len() <= level {
                 self.hashes.insert(level, vec![]);
             }
@@ -63,11 +69,17 @@ impl MerkleTree {
             index = index / 2;
 
             // each level has half the elements of the previous levels
-            for i in index..self.hashes[level - 1].len() / 2 {
+            let limit = (self.hashes[level - 1].len() + 1) / 2;
+
+            for i in index..limit {
                 let lc: H256 = self.hashes[level - 1][2 * i];
                 let rc: H256 = self.hashes[level - 1][2 * i + 1];
                 let concatenated = [lc.as_bytes(), rc.as_bytes()].concat();
-                self.hashes[level].insert(i, keccak(concatenated));
+                if i >= self.hashes[level].len(){
+                    self.hashes[level].push(keccak(concatenated));
+                } else {
+                    self.hashes[level][i] = keccak(concatenated);
+                }   
             }
         }
 
@@ -100,7 +112,7 @@ impl MerkleTree {
         if index >= self.len {
             return false;
         }
-
+        self.print();
         let mut hash: H256 = element;
 
         for elem in proof {
@@ -116,6 +128,16 @@ impl MerkleTree {
 
         hash == self.root
     }
+
+
+    pub fn print(&self){
+        for i in 0..self.hashes.len(){
+            for j in 0..self.hashes[i].len(){
+                print!("[{i}][{j}] {:x}",self.hashes[i][j]);
+            }
+            println!("");
+        }
+    }
 }
 
 impl<T> From<Vec<T>> for MerkleTree
@@ -129,7 +151,6 @@ where
             mt.hashes[0].push(keccak(element));
             mt.len += 1;
         }
-
         //recompute the tree from the start
         mt.recompute_tree();
 
