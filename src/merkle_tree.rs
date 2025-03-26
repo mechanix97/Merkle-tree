@@ -88,9 +88,9 @@ impl MerkleTree {
     }
 
     // generate a proof from a given index
-    pub fn generate_proof(&self, mut index: usize) -> Vec<H256> {
+    pub fn generate_proof(&self, mut index: usize) -> Option<Vec<H256>> {
         if index >= self.len {
-            return vec![];
+            return None;
         }
 
         let mut output = vec![];
@@ -103,7 +103,7 @@ impl MerkleTree {
             index = index / 2;
         }
 
-        output
+        Some(output)
     }
 
     // checks if a proof of a certain element is valid
@@ -215,7 +215,7 @@ mod tests {
             ),
         ];
 
-        assert_eq!(mt.generate_proof(2), proof);
+        assert_eq!(mt.generate_proof(2).unwrap(), proof);
     }
 
     #[test]
@@ -223,7 +223,7 @@ mod tests {
         // a fourth element should be added
         let mt = MerkleTree::from(vec!["keccak.com", "example.com", "mechardo3d.xyz"]);
 
-        assert_eq!(mt.generate_proof(3), vec!());
+        assert_eq!(mt.generate_proof(3).unwrap(), vec!());
     }
 
     #[test]
@@ -292,7 +292,7 @@ mod tests {
         let elems = vec!["google.com"; 254];
 
         let mt = MerkleTree::from(elems);
-        let proof = mt.generate_proof(45);
+        let proof = mt.generate_proof(45).unwrap();
 
         assert!(mt.check_proof(keccak("google.com"), proof, 45));
     }
