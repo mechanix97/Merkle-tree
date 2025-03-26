@@ -265,7 +265,7 @@ mod tests {
     }
 
     #[test]
-    pub fn generate_proof_and_validate(){
+    pub fn generate_proof_and_validate() {
         let elems = vec!["google.com"; 254];
 
         let mt = MerkleTree::from(elems);
