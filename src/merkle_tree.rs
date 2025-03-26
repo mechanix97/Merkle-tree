@@ -49,7 +49,7 @@ impl MerkleTree {
 
         // complete the array to fill 2^n elements
         for i in self.len..usize::pow(2 as usize, self.levels as u32) {
-            self.hashes[0].insert(i, keccak(""));
+            self.hashes[0].insert(i, keccak([0u8; 32]));
         }
 
         // traverse the tree by levels
@@ -171,7 +171,7 @@ mod tests {
         let mt = MerkleTree::from(vec!["keccak.com", "example.com", "mechardo3d.xyz"]);
 
         let a_b = &[keccak(a).as_bytes(), keccak(b).as_bytes()].concat();
-        let c_c = &[keccak(c).as_bytes(), keccak("").as_bytes()].concat();
+        let c_c = &[keccak(c).as_bytes(), keccak([0u8; 32]).as_bytes()].concat();
 
         let concatenated = &[keccak(a_b).as_bytes(), keccak(c_c).as_bytes()].concat();
 
@@ -184,7 +184,7 @@ mod tests {
         let mt = MerkleTree::from(vec!["keccak.com", "example.com", "mechardo3d.xyz"]);
 
         let proof = vec![
-            keccak(""),
+            keccak([0u8; 32]),
             keccak(
                 &[
                     keccak("keccak.com").as_bytes(),
@@ -241,7 +241,7 @@ mod tests {
         mt.append(&c);
 
         let a_b = &[keccak(a).as_bytes(), keccak(b).as_bytes()].concat();
-        let c_c = &[keccak(c).as_bytes(), keccak("").as_bytes()].concat();
+        let c_c = &[keccak(c).as_bytes(), keccak([0u8; 32]).as_bytes()].concat();
 
         let concatenated = &[keccak(a_b).as_bytes(), keccak(c_c).as_bytes()].concat();
 
@@ -256,12 +256,14 @@ mod tests {
         mt.append(&"google.com");
 
         // this root has been verified manually
-        let root = [
-            202, 102, 178, 60, 100, 108, 0, 66, 35, 35, 124, 87, 13, 238, 233, 107, 132, 211, 45,
-            174, 237, 164, 205, 171, 133, 196, 169, 23, 20, 223, 137, 111,
-        ];
+        let root: H256 = H256([
+            0x3a, 0xfa, 0xf3, 0x8b, 0x49, 0x1f, 0x01, 0x8a,
+            0x52, 0x03, 0xb3, 0xf4, 0x1a, 0xff, 0x7c, 0x33,
+            0xf6, 0x5f, 0x63, 0xff, 0xbf, 0x4c, 0x92, 0xe0,
+            0x3e, 0xd7, 0x2c, 0x5b, 0xec, 0x02, 0x53, 0x7f
+        ]);
 
-        assert_eq!(mt.get_root(), H256(root));
+        assert_eq!(mt.get_root(), root);
     }
 
     #[test]
