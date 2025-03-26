@@ -54,7 +54,7 @@ impl MerkleTree {
         }
 
         // complete the array to fill 2^n elements
-        for i in self.len..usize::pow(2 as usize, self.levels as u32) {
+        for i in self.hashes[0].len()..usize::pow(2 as usize, self.levels as u32) {
             self.hashes[0].insert(i, keccak([0u8; 32]));
         }
 
