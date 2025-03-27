@@ -26,7 +26,7 @@ make test
 ```
 ## Implementation details
 
-Used a nested array to store the hashes in a inverted top-bottom representation. The first level (hashes[0]) stores an array the hashes of the input elements, and as the array goes down it reatches the root.
+Used a nested array to store the hashes in a bottom-top representation. The first level (hashes[0]) stores an array the hashes of the input elements, and as the array goes down it reatches the root.
 
 Decided to store the len of the first array (hashes[0]) and the count of the levels of the array to have and easy access in the code.
 
