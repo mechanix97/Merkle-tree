@@ -48,12 +48,12 @@ impl MerkleTree {
         }
 
         // check if new levels are needed
-        while self.len > 2 && self.len >= usize::pow(2 as usize, self.levels as u32) + 1 {
+        while self.len > 2 && self.len >= (1 << self.levels)+ 1 {
             self.levels += 1;
         }
 
         // complete the array to fill 2^n elements
-        for i in self.hashes[0].len()..usize::pow(2 as usize, self.levels as u32) {
+        for i in self.hashes[0].len()..(1 << self.levels) {
             self.hashes[0].insert(i, keccak([0u8; 32]));
         }
 
@@ -65,7 +65,7 @@ impl MerkleTree {
             }
 
             // divide the index by 2 each level
-            index = index / 2;
+            index >>= 1;
 
             // each level has half the elements of the previous levels
             let limit = (self.hashes[level - 1].len() + 1) / 2;
@@ -221,7 +221,7 @@ mod tests {
         // a fourth element should be added
         let mt = MerkleTree::from(vec!["keccak.com", "example.com", "mechardo3d.xyz"]);
 
-        assert_eq!(mt.generate_proof(3).unwrap(), vec!());
+        assert_eq!(mt.generate_proof(3), None);
     }
 
     #[test]
