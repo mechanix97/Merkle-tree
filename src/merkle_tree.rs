@@ -32,8 +32,7 @@ impl MerkleTree {
         } else {
             self.hashes[0].insert(self.len, hashed_element);
         }
-       
-        
+
         self.len += 1;
         self.recompute_tree_from_index(self.len - 1);
     }
@@ -75,11 +74,11 @@ impl MerkleTree {
                 let lc: H256 = self.hashes[level - 1][2 * i];
                 let rc: H256 = self.hashes[level - 1][2 * i + 1];
                 let concatenated = [lc.as_bytes(), rc.as_bytes()].concat();
-                if i >= self.hashes[level].len(){
+                if i >= self.hashes[level].len() {
                     self.hashes[level].push(keccak(concatenated));
                 } else {
                     self.hashes[level][i] = keccak(concatenated);
-                }   
+                }
             }
         }
 
@@ -129,11 +128,10 @@ impl MerkleTree {
         hash == self.root
     }
 
-
-    pub fn print(&self){
-        for i in 0..self.hashes.len(){
-            for j in 0..self.hashes[i].len(){
-                print!("[{i}][{j}] {:x}",self.hashes[i][j]);
+    pub fn print(&self) {
+        for i in 0..self.hashes.len() {
+            for j in 0..self.hashes[i].len() {
+                print!("[{i}][{j}] {:x}", self.hashes[i][j]);
             }
             println!("");
         }
@@ -278,10 +276,9 @@ mod tests {
 
         // this root has been verified manually
         let root: H256 = H256([
-            0x3a, 0xfa, 0xf3, 0x8b, 0x49, 0x1f, 0x01, 0x8a,
-            0x52, 0x03, 0xb3, 0xf4, 0x1a, 0xff, 0x7c, 0x33,
-            0xf6, 0x5f, 0x63, 0xff, 0xbf, 0x4c, 0x92, 0xe0,
-            0x3e, 0xd7, 0x2c, 0x5b, 0xec, 0x02, 0x53, 0x7f
+            0x3a, 0xfa, 0xf3, 0x8b, 0x49, 0x1f, 0x01, 0x8a, 0x52, 0x03, 0xb3, 0xf4, 0x1a, 0xff,
+            0x7c, 0x33, 0xf6, 0x5f, 0x63, 0xff, 0xbf, 0x4c, 0x92, 0xe0, 0x3e, 0xd7, 0x2c, 0x5b,
+            0xec, 0x02, 0x53, 0x7f,
         ]);
 
         assert_eq!(mt.get_root(), root);
